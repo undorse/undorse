@@ -10,6 +10,6 @@ jobs:
           SSH_KEY: ${{ secrets.SSH_KEY }}
           UNDORSE_HOST: ${{ secrets.UNDORSE_HOST }}
         run: |
-          mkdir -p .ssh/ && echo $SSH_KEY > .ssh/id_rsa
-          docker build -t undorse
-          docker save undorse:latest | bzip2 | pv | ssh undorse@$UNDORSE_HOST "docker load;systemctl nginx restart"
+          mkdir -p .ssh/ && echo $SSH_KEY > .ssh/id_rsa &&
+          docker cd undorse && build -t undorse . &&
+          docker save undorse:latest | bzip2 | pv | ssh undorse@$UNDORSE_HOST "docker load;docker run -p8000:8000; systemctl nginx restart"

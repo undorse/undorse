@@ -1,0 +1,15 @@
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          UNDORSE_HOST: ${{ secrets.UNDORSE_HOST }}
+        run: |
+          mkdir -p .ssh/ && echo $SSH_KEY > .ssh/id_rsa
+          docker build -t undorse
+          docker save undorse:latest | bzip2 | pv | ssh undorse@$UNDORSE_HOST "docker load;systemctl nginx restart"
